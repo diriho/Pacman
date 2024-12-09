@@ -24,12 +24,13 @@ package pacman;
  * "row" and "column" rather than X and Y, the hope is to make clearer the
  * "true" location of each coordinate location.
  */
-public class BoardCoordinate {
+public class BoardCoordinate{
 
     private final int row;
     private final int column;
     private static final int ROW_MAX = 22;
     private static final int COL_MAX = 22;
+    private static  boolean isTarget ;
 
     /**
      * The constructor. it takes in a row and a column whose location this
@@ -37,6 +38,7 @@ public class BoardCoordinate {
      * square (see header comments for more on this).
      */
     public BoardCoordinate(int row, int column, boolean isTarget) {
+        this.isTarget = isTarget;
         if (!isTarget) {
             this.checkValidity(row, column);
         }
@@ -83,4 +85,14 @@ public class BoardCoordinate {
                       " Given row = " + row + " col = " + column);
         }
     }
+
+    public boolean getTarget(){
+        return this.isTarget;
+    }
+
+    public void setTarget(){
+        this.isTarget = true;
+    }
+
+
 }

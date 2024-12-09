@@ -1,6 +1,7 @@
 package pacman;
 
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
@@ -17,6 +18,12 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         // Create top-level object, set up the scene, and show the stage here.
+        PaneOrganizer paneOrganizer = new PaneOrganizer();
+        Scene myScene = new Scene(paneOrganizer.getRoot(), 690, 720);
+        stage.setScene(myScene);
+        stage.setTitle("Pacman!");
+        stage.show();
+
     }
 
     /*
