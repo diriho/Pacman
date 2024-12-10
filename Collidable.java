@@ -1,3 +1,5 @@
+/*this interface will the implemented by ghosts, dots, and energizers*/
+
 package pacman;
 
 import cs15.fnl.pacmanSupport.CS15SquareType;

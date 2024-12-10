@@ -1,3 +1,7 @@
+/**
+ * The class of the Sidebar is the class that is going to handle creation of labels the quit button
+ * and do updates during different scenario of the game **/
+
 package pacman;
 
 import javafx.event.ActionEvent;
@@ -12,17 +16,21 @@ import javafx.scene.text.FontWeight;
 public class sideBar {
     private HBox barPane;
     private Label scoreLabel;
+    private Label modeLabel;
     private Button btn;
     private Label lifeLabel;
+
+    //sideBad constructor
     public sideBar(HBox bar){
         this.barPane = bar;
         this.setUpSideBar();
     }
 
-
+    //The method sets Up the side Bad initially when the game starts, with buttons, and all the
     private void setUpSideBar(){
         this.btn = new Button("Quit");
         this.scoreLabel = new Label("Score: 0");
+        this.modeLabel = new Label("Mode: Scatter");
 
         this.lifeLabel = new Label("Lives: 3");
         this.lifeLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 20));
@@ -31,21 +39,34 @@ public class sideBar {
         this.scoreLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 20));
         this.scoreLabel.setTextFill(Color.WHITE);
 
+        this.modeLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 20));
+        this.modeLabel.setTextFill(Color.WHITE);
+
+        /*setting focus traversable to false for all the labels and button */
         this.btn.setFocusTraversable(false);
+        this.scoreLabel.setFocusTraversable(false);
+        this.lifeLabel.setFocusTraversable(false);
         this.barPane.setFocusTraversable(false);
+        this.modeLabel.setFocusTraversable(false);
+
+
         this.btn.setOnAction((ActionEvent e) -> System.exit(0));
-        this.barPane.getChildren().addAll(btn,  this.lifeLabel, this.scoreLabel);
+        this.barPane.getChildren().addAll(btn,  this.lifeLabel, this.scoreLabel, this.modeLabel);
         this.barPane.setAlignment(Pos.CENTER);
-        this.barPane.setSpacing(20);
+        this.barPane.setSpacing(50);
         this.barPane.setStyle("-fx-background-color:#900C3F");
     }
 
+    //this method will help when we want to update the Score, after pacman collides with a Collidable element
     public void changeScoreLabel(String s){
         this.scoreLabel.setText(s);
     }
 
+    //this method will help when we want to update the Lives, after pacman collides with a Ghost element
     public void changeLivesLabel(String s){
         this.lifeLabel.setText(s);
     }
 
+    //this method will help when we want to update the Ghost's mode,
+    public void changeModeLabel(String s) {this.modeLabel.setText(s);}
 }

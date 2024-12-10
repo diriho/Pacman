@@ -1,3 +1,5 @@
+/*this class initializes all of the constants that I will need in this game*/
+
 package pacman;
 
 import javafx.scene.paint.Color;

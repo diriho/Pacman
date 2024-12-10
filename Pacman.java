@@ -1,3 +1,7 @@
+/**this class models the properties and functionalities of pacman with all the necessar encapsulations
+ * It extends the Dot class, but also it implements the collidable interface**/
+
+
 package pacman;
 
 import javafx.scene.layout.Pane;
@@ -8,6 +12,7 @@ public class Pacman extends Dot{
     private Direction currentDir;
     private Board myBoard;
 
+    //Pacman constructor
     public Pacman(Pane pane, Board board, int x, int y){
         super(pane, x, y);
         this.myBoard = board;
@@ -15,6 +20,8 @@ public class Pacman extends Dot{
         this.setSize(14);
         this.setColor(Color.YELLOW);
     }
+
+    //this method deals with moving pacman depending on the direction it's moving
     public void move(){
         switch (this.currentDir){
             case UP:
@@ -46,34 +53,41 @@ public class Pacman extends Dot{
         }
     }
 
+    // moving up pacman
     private void moveUp(){
         int newY = this.getCoordinates()[1] - 30;
-        this.getCircle().setCenterY(newY);
+        this.setLocation(this.getCoordinates()[0], newY);
     }
+
+    // moving down pacman
     private void moveDown(){
         int newY = this.getCoordinates()[1] + 30;
-        this.getCircle().setCenterY(newY);
+        this.setLocation(this.getCoordinates()[0], newY);
     }
+
+    // moving left pacman
     private void moveLeft(){
         int newX = this.getCoordinates()[0] - 30;
         if (newX >0){
-        this.getCircle().setCenterX(newX);}
+            this.setLocation(newX, this.getCoordinates()[1]);}
+
     }
+
+    // moving right pacman
     private void moveRight(){
         int newX = this.getCoordinates()[0] + 30;
         if (newX < 690){
-            this.getCircle().setCenterX(newX);
+            this.setLocation(newX, this.getCoordinates()[1]);
         }
     }
 
+    //this method changes the direction, which is basically what we do with the keyPressed method in the game class
     public Direction changeDirection(Direction dir){
         this.currentDir=dir;
         return this.currentDir;
     }
 
-    public Direction getCurrentDir(){
-        return this.currentDir;
-    }
+    //checking if pacman can move down, (checking if in that square there is not a wall
     private boolean canMoveDown(Board board) {
         boolean canMoveDown = true;
         int row = this.getCoordinates()[1] / 30;
@@ -84,6 +98,7 @@ public class Pacman extends Dot{
         return canMoveDown;
     }
 
+    //checking if pacman can move up , (checking if in that square there is not a wall
     private boolean canMoveUp(Board board) {
         boolean canMoveUp = true;
         int row = this.getCoordinates()[1] / 30;
@@ -93,6 +108,8 @@ public class Pacman extends Dot{
         }
         return canMoveUp;
     }
+
+    //checking if pacman can move left, (checking if in that square there is not a wall
     private boolean canMoveLeft(Board board) {
         boolean canMoveLeft = true;
         int row = this.getCoordinates()[1] / 30;
@@ -102,6 +119,8 @@ public class Pacman extends Dot{
         }
         return canMoveLeft;
     }
+
+    //checking if pacman can move right, (checking if in that square there is not a wall
     private boolean canMoveRight(Board board ) {
         boolean canMoveRight = true;
         int row = this.getCoordinates()[1] / 30;

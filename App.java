@@ -6,10 +6,10 @@ import javafx.stage.Stage;
 
 /**
   * This is the App class where your Pacman game will start.
-  * The main method of this application calls the start method. You
-  * will need to fill in the start method to instantiate your game.
+  * The main method of this application calls the start method..
   *
-  * Class comments here... 
+  * This class initializes the Pane organizer, which is the too-level graphical class
+ * and set the scene and show the stage..
   *
   */
 
@@ -27,7 +27,7 @@ public class App extends Application {
     }
 
     /*
-    * Here is the mainline! No need to change this.
+    * Here is the mainline!
     */
     public static void main(String[] argv) {
         // launch is a method inherited from Application

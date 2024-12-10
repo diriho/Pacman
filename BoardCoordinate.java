@@ -86,13 +86,4 @@ public class BoardCoordinate{
         }
     }
 
-    public boolean getTarget(){
-        return this.isTarget;
-    }
-
-    public void setTarget(){
-        this.isTarget = true;
-    }
-
-
 }

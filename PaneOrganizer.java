@@ -1,3 +1,6 @@
+/**The paneOrganizer class is a high graphical class that models the graphical logic of the game
+ * creating the panes and add the panes to the BorderPane which helps the layout**/
+
 package pacman;
 
 import javafx.scene.layout.BorderPane;
@@ -7,6 +10,8 @@ import javafx.scene.layout.Pane;
 public class PaneOrganizer {
     private BorderPane root;
     private sideBar sideBar;
+
+    //PaneOrganizer's constructor
     public PaneOrganizer(){
         this.root = new BorderPane();
         this.setBottomPane();
@@ -14,6 +19,7 @@ public class PaneOrganizer {
 
     }
 
+    /*this method sets the central gamePane*/
     private void setGamePane(){
        Pane gamePane = new Pane();
        gamePane.setStyle("-fx-background-color:#900C3F");
@@ -24,6 +30,7 @@ public class PaneOrganizer {
 
     }
 
+    //This method sets the BottomPan, which is going to have the sideBar
     private void setBottomPane(){
         HBox bottomPane = new HBox();
         this.sideBar = new sideBar(bottomPane);
@@ -31,6 +38,7 @@ public class PaneOrganizer {
 
     }
 
+    //this method return the root (borderpane)
     public BorderPane getRoot(){
         return this.root;
     }
