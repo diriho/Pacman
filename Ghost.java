@@ -5,8 +5,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 
 public class Ghost implements Collidable{
@@ -25,6 +28,7 @@ public class Ghost implements Collidable{
         this.currentDir = null;
         this.counter = 0;
         this.currBehaviour = ghostBehavior.CHASE;
+        //this.currBehaviour = ghostBehavior.FRIGHTENED;
         this.myBoard = board;
         this.initialLocation = location;
         this.ghostScore = 200;
@@ -43,18 +47,17 @@ public class Ghost implements Collidable{
 
     public void updateState() {
         this.counter += 1;
-        //System.out.println(counter);
-        if (this.currBehaviour == ghostBehavior.FRIGHTENED && this.counter == 12) {
+        if (this.currBehaviour == ghostBehavior.FRIGHTENED && this.counter == 30) {
             //System.out.println(this.counter);
             this.setCurrBehaviour(ghostBehavior.CHASE);
             this.setColor(Color.GRAY);
             this.counter = 0;
-        }  else if (this.currBehaviour == ghostBehavior.SCATTER && this.counter == 30) {
+        }  else if (this.currBehaviour == ghostBehavior.SCATTER && this.counter == 70) {
              //System.out.println(this.counter);
             this.setCurrBehaviour(ghostBehavior.CHASE);
             this.setColor(Color.GRAY);
             this.counter = 0;// Reset counter after switching states}
-        } if (this.currBehaviour == ghostBehavior.CHASE && this.counter == 12) {
+        } if (this.currBehaviour == ghostBehavior.CHASE && this.counter == 30) {
             //System.out.println(this.counter);
             this.setCurrBehaviour(ghostBehavior.SCATTER);
             this.setColor(Color.CHOCOLATE);
@@ -64,33 +67,30 @@ public class Ghost implements Collidable{
         //System.out.println(this.currBehaviour);
     }
 
-//    public void frightenedMode(){
-//        this.currBehaviour = ghostBehavior.FRIGHTENED;
-//        this.ghost.setFill(Color.SKYBLUE);
-//        this.counter = 0;
-//    }
-
     public Direction  BFS(BoardCoordinate target){
         int row = this.getCoordinates()[1]/30;
         int col = this.getCoordinates()[0]/30;
         Direction [][] map = new Direction[23][23];
+        Direction returnDir = null;
         Queue<BoardCoordinate> myQueue = new LinkedList<>();
-        int minimumDist = (int) Double.POSITIVE_INFINITY;
+        double minimumDist = (int) Double.POSITIVE_INFINITY;
         BoardCoordinate ghostLoc = new BoardCoordinate(row, col, false);
 
         this.getNeighbors(myQueue, ghostLoc, map, true);
         while (!myQueue.isEmpty()){
             BoardCoordinate currentNeighbor = myQueue.remove();
             this.getNeighbors(myQueue, currentNeighbor, map, false);
-            int neighborDist = (int) Math.hypot((currentNeighbor.getRow()-target.getRow()), (currentNeighbor.getColumn() - target.getColumn()));
+            double neighborDist = Math.hypot((currentNeighbor.getRow()-target.getRow()), (currentNeighbor.getColumn() - target.getColumn()));
             Direction newDir = map[currentNeighbor.getRow()][currentNeighbor.getColumn()];
-            if (neighborDist < minimumDist && !newDir.isOpposite(this.currentDir)){
+            if (neighborDist < minimumDist ){
                 minimumDist = neighborDist;
-                this.currentDir = newDir;
+                returnDir = newDir;
             }
         }
-        return this.currentDir;
+        return returnDir;
     }
+
+
 
    private void getNeighbors(Queue<BoardCoordinate> neighbors, BoardCoordinate current, Direction[][] visited, boolean isFirst) {
        int row = current.getRow() ;
@@ -98,118 +98,106 @@ public class Ghost implements Collidable{
        if (row > 21 || col >21 || row <= 0 || col <= 0 ){
             //you don't do anything
        } else {
-           if (myBoard.isWall(row - 1, col) == false && visited[row - 1][col] == null) {
-               BoardCoordinate neighbor1 = new BoardCoordinate(row - 1, col, false);
-               Direction dir = Direction.UP;
-               neighbors.add(neighbor1);
-               if (isFirst == true) {
-                   visited[row - 1][col] = dir;
-               } else {
-                   visited[row - 1][col] = this.currentDir;
+           if(this.currentDir != Direction.DOWN && isFirst) {
+               if (myBoard.isWall(row - 1, col) == false && visited[row - 1][col] == null) {
 
+                   BoardCoordinate neighbor1 = new BoardCoordinate(row - 1, col, false);
+                   Direction dir = Direction.UP;
+                   neighbors.add(neighbor1);
+                   if (isFirst == true) {
+                       visited[row - 1][col] = dir;
+                   } else {
+                       visited[row - 1][col] = this.currentDir;
+
+                   }
                }
            }
-           if (this.myBoard.isWall(row + 1, col) == false && visited[row + 1][col] == null) {
-               BoardCoordinate neighbor2 = new BoardCoordinate(row + 1, col, false);
-               Direction dir = Direction.DOWN;
-               neighbors.add(neighbor2);
-               if (isFirst == true) {
-                   visited[row + 1][col] = dir;
-               } else {
-                   visited[row + 1][col] = this.currentDir;
+           if(this.currentDir != Direction.UP && isFirst) {
+               if (this.myBoard.isWall(row + 1, col) == false && visited[row + 1][col] == null) {
+                   BoardCoordinate neighbor2 = new BoardCoordinate(row + 1, col, false);
+                   Direction dir = Direction.DOWN;
+                   neighbors.add(neighbor2);
+                   if (isFirst == true) {
+                       visited[row + 1][col] = dir;
+                   } else {
+                       visited[row + 1][col] = this.currentDir;
+                   }
                }
            }
-           if (this.myBoard.isWall(row, col + 1) == false && visited[row][col + 1] == null) {
-               BoardCoordinate neighbor3 = new BoardCoordinate(row, col + 1, false);
-               Direction dir = Direction.RIGHT;
-               neighbors.add(neighbor3);
-               if (isFirst == true) {
-                   visited[row][col + 1] = dir;
-               } else {
-                   visited[row][col + 1] = this.currentDir;
+           if(this.currentDir != Direction.LEFT && isFirst) {
+               if (this.myBoard.isWall(row, col + 1) == false && visited[row][col + 1] == null) {
+                   BoardCoordinate neighbor3 = new BoardCoordinate(row, col + 1, false);
+                   Direction dir = Direction.RIGHT;
+                   neighbors.add(neighbor3);
+                   if (isFirst == true) {
+                       visited[row][col + 1] = dir;
+                   } else {
+                       visited[row][col + 1] = this.currentDir;
+                   }
                }
-           }
-           if (this.myBoard.isWall(row, col - 1) == false && visited[row][col - 1] == null) {
-               BoardCoordinate neighbor4 = new BoardCoordinate(row, col - 1, false);
-               Direction dir = Direction.LEFT;
-               neighbors.add(neighbor4);
-               if (isFirst == true) {
-                   visited[row][col - 1] = dir;
-               } else {
-                   visited[row][col - 1] = this.currentDir;
+           } if(this.currentDir != Direction.RIGHT  && isFirst) {
+               if (this.myBoard.isWall(row, col - 1) == false && visited[row][col - 1] == null) {
+                   BoardCoordinate neighbor4 = new BoardCoordinate(row, col - 1, false);
+                   Direction dir = Direction.LEFT;
+                   neighbors.add(neighbor4);
+                   if (isFirst ) {
+                       visited[row][col - 1] = dir;
+                   } else {
+                       visited[row][col - 1] = this.currentDir;
+                   }
                }
            }
        }
    }
+    public void moveGhost(BoardCoordinate target) {
+        if (this.getCoordinates()[0] == 0) {
+            this.setLocation(630, this.getCoordinates()[1]);
 
-
-    @Override
-    public int[] getCoordinates(){
-        int[] coordinate = new int [2];
-        coordinate[0] = (int) this.ghost.getX();
-        coordinate[1] = (int) this.ghost.getY();
-        return coordinate;
-
-    }
-
-
-    public BoardCoordinate getScatterTarget() {
-        if (this.myColor == Color.RED) {
-            return new BoardCoordinate(0, 0, true);
-        } else if (this.myColor == Color.PINK) {
-            return new BoardCoordinate(0, 22, true);
-        } else if (this.myColor == Color.GREEN) {
-            return new BoardCoordinate(22, 0, true);
+        } if (this.getCoordinates()[0] == 660) {
+            this.setLocation(30, this.getCoordinates()[1]);
         } else {
-            return new BoardCoordinate(22, 22, true);
-         }
-    }
+            Direction dir = this.BFS(target);
+            this.currentDir = dir;
+            System.out.println(dir);
+            System.out.println(this.getCoordinates()[1]);
 
-    public BoardCoordinate getChaseTarget() {
-        if (this.myColor == Color.RED) {
-            return null; // new BoardCoordinate(, 0, true); here I return the pacman position (row, col)love
-        } else if (this.myColor == Color.PINK) {
-            return null; //new BoardCoordinate(0, 22, true); here I return the pacman position (col +2), isTarget(true
-        } else if (this.myColor == Color.GREEN) {
-            return null; //new BoardCoordinate(22, 0, true); here I return the pacman position (row -4), isTarget(true
-        } else {
-            return null; //new BoardCoordinate(22, 22, true); here I return the pacman position (row -3) (col +1), isTarget(true
+            switch (dir) {
+                case UP:
+                    if (canMove()) {
+                        this.moveUp();
+                    }
+                    break;
+                case DOWN:
+                    if (canMove()) {
+                        this.moveDown();
+                    }
+                    break;
+                case RIGHT:
+                    if (canMove()) {
+                        this.moveRight();
+                    }
+                    break;
+
+                case LEFT:
+                    if (this.getCoordinates()[0] == 0) {
+                        this.setLocation(630, this.getCoordinates()[1]);
+                    } else {
+                        if (canMove()) {
+                            this.moveLeft();
+                        }
+                        break;
+                    }
+                default:
+                    break;
+            }
         }
     }
 
-    public void moveGhost(){
-        switch (this.currentDir){
-            case UP:
-                if (canMove()){
-                    this.moveUp();
-                }
-                break;
-            case DOWN:
-                if (canMove()){
-                this.moveDown();}
-                break;
-            case RIGHT:
-                if (this.getCoordinates()[0] == 660) {
-                    this.setLocation(0, this.getCoordinates()[1]);
-                } else if (canMove()){
-                this.moveRight();}
-                break;
-            case LEFT:
-                if (this.getCoordinates()[0] == 0) {
-                    this.setLocation(660, this.getCoordinates()[1]);
-                } else if (canMove()){
-                    this.moveLeft(); }
-                break;
-            default:
-                break;
-        }
-    }
 
     public void setLocation(int x, int y){
         this.ghost.setX(x);
         this.ghost.setY(y);
     }
-
     @Override
     public void executeCollision(){
         this.setLocation(getInitialLocation()[0], getInitialLocation()[1]);
@@ -232,7 +220,7 @@ public class Ghost implements Collidable{
 
     @Override
     public CS15SquareType getType() {
-        return null;
+        return CS15SquareType.GHOST_START_LOCATION;
     }
 
     private void moveRight(){
@@ -286,4 +274,85 @@ public class Ghost implements Collidable{
         return true;
     }
 
+
+    @Override
+    public int[] getCoordinates(){
+        int[] coordinate = new int [2];
+        coordinate[0] = (int) this.ghost.getX();
+        coordinate[1] = (int) this.ghost.getY();
+        return coordinate;
+    }
+
+    public Paint getMyColor(){
+        return myColor;
+    }
+
+
+    public void moveGhostInFrightened() {
+        if (this.getCoordinates()[0] == 0) {
+            this.setLocation(630, this.getCoordinates()[1]);
+
+        } if (this.getCoordinates()[0] == 660) {
+            this.setLocation(30, this.getCoordinates()[1]);
+        } else {
+            Direction randomDir = getValidDirection();
+            this.currentDir = randomDir;
+            switch (randomDir) {
+                case UP:
+                    if (canMove()) {
+                        this.moveUp();
+                    }
+                    break;
+                case DOWN:
+                    if (canMove()) {
+                        this.moveDown();
+                    }
+                    break;
+                case RIGHT:
+                    if (this.getCoordinates()[0] == 660) {
+                        this.setLocation(0, this.getCoordinates()[1]);
+                    } else {
+                        if (canMove()) {
+                            this.moveRight();
+                        }
+                        break;
+                    }
+                case LEFT:
+                    if (this.getCoordinates()[0] == 0) {
+                        this.setLocation(660, this.getCoordinates()[1]);
+                    } else {
+                        if (canMove()) {
+                            this.moveLeft();
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+   private Direction getValidDirection () {
+       ArrayList<Direction> validDirections = new ArrayList<>();
+       int currRow = this.getCoordinates()[1] / 30;
+       int currCol = this.getCoordinates()[0] / 30;
+       if (!this.myBoard.isWall(currRow - 1, currCol)) {
+           validDirections.add(Direction.UP);
+       }
+       if (!this.myBoard.isWall(currRow + 1, currCol)) {
+           validDirections.add(Direction.DOWN);
+       }
+       if (!this.myBoard.isWall(currRow, currCol - 1)) {
+           validDirections.add(Direction.LEFT);
+       }
+       if (!this.myBoard.isWall(currRow, currCol + 1)) {
+           validDirections.add(Direction.RIGHT);
+       }
+       if (validDirections.contains(this.currentDir.opposite())) {
+           int idx = validDirections.indexOf(this.currentDir.opposite());
+           validDirections.remove(idx);
+       }
+       Random random = new Random();
+       int index = random.nextInt(validDirections.size());
+       return validDirections.get(index);
+   }
 }

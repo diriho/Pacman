@@ -41,9 +41,7 @@ public class sideBar {
     }
 
     public void changeScoreLabel(String s){
-        //this.barPane.getChildren().removeAll(this.scoreLabel);
         this.scoreLabel.setText(s);
-        //this.barPane.getChildren().addAll( this.scoreLabel);
     }
 
     public void changeLivesLabel(String s){

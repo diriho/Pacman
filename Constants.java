@@ -6,7 +6,7 @@ public class Constants {
 
     public static final int SQUARE_WIDTH = 30;
     public static final int ROW = 30;
-    public static final Color[] GHOST_COLORS =  {Color.RED, Color.HOTPINK, Color.SKYBLUE, Color.ORANGE};
+    public static final Color[] GHOST_COLORS =  {Color.ORANGE, Color.HOTPINK, Color.SKYBLUE, Color.RED};
 
 
 }

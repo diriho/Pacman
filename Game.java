@@ -11,8 +11,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 public class Game {
     private Pacman pacman;
@@ -65,9 +68,7 @@ public class Game {
                     this.ghosts = new Ghost[4];
                     int x = col * 30;
                     int y =  row * 30;
-                    //this.pinky = new Ghost(this.myPane, Color.RED, this.gameBoard, new int[] {x,y -60});
                     this.ghostInitialLocation = new int[][] {{x, y}, {x + 30, y}, {x - 30, y}, {x, y - 60}};
-                    //Color [] ghostColor = {Color.FUCHSIA, Color.RED, Color.GOLD, Color.CHARTREUSE};
                     for (int i=0; i<ghostInitialLocation.length; i++ ){
                         this.ghosts[i] = new Ghost(this.myPane, Constants.GHOST_COLORS[i], this.gameBoard, ghostInitialLocation[i]);
                         if (i<3){
@@ -113,17 +114,22 @@ public class Game {
             int row = this.pacman.getCoordinates()[1]/30;
             int col = this.pacman.getCoordinates()[0]/30;
             BoardCoordinate target = new BoardCoordinate(row, col, true);
-            System.out.println(this.ghostInPen.size());
-            //System.out.println(this.penCounter);
+            //System.out.println(this.ghostInPen.size());
+
+            /*remember that in this particulae scenariio you are goign to set ins a such a way that before doing the f
+            * for loop, you first check the curent state of one o the ghosts and do the remaining logic
+            * if it reveals to not be the right option, change it to be other as it was initially*/
             for (Ghost ghost:this.ghosts){
                 ghost.updateState();
                 if(ghost.getCurrBehaviour() == ghostBehavior.SCATTER){
-                    ghost.BFS(ghost.getScatterTarget());
+                    ghost.moveGhost(getScatterTarget(ghost));
                 } else if (ghost.getCurrBehaviour() == ghostBehavior.CHASE) {
-                    ghost.BFS(target);
+                    ghost.moveGhost(getChaseTarget(ghost));
+                } else if (ghost.getCurrBehaviour() == ghostBehavior.FRIGHTENED){
+                    ghost.moveGhostInFrightened();
                 }
-                ghost.moveGhost();
             }
+
             this.checkGhostCollision();
         }
         );
@@ -134,23 +140,31 @@ public class Game {
 
     }
 
-
     private void onKeyPressed(KeyEvent e){
+        int currRow = this.pacman.getCoordinates()[1]/30;
+        int currCol = this.pacman.getCoordinates()[0]/30;
         KeyCode keyPressed = e.getCode();
         switch(keyPressed){
             case UP:
-                this.pacman.changeDirection(Direction.UP);
+                if ( !this.gameBoard.isWall(currRow-1, currCol)){
+                    this.pacman.changeDirection(Direction.UP);
+                }
                 break;
             case DOWN:
-                this.pacman.changeDirection(Direction.DOWN);
+                if ( !this.gameBoard.isWall(currRow+1, currCol)) {
+                    this.pacman.changeDirection(Direction.DOWN);
+                }
 
                 break;
             case LEFT:
-                this.pacman.changeDirection(Direction.LEFT);
-
+                if ( !this.gameBoard.isWall(currRow, currCol-1)) {
+                    this.pacman.changeDirection(Direction.LEFT);
+                }
                 break;
             case RIGHT:
-                this.pacman.changeDirection(Direction.RIGHT);
+                if ( !this.gameBoard.isWall(currRow, currCol+1)) {
+                    this.pacman.changeDirection(Direction.RIGHT);
+                }
 
                 break;
             default:
@@ -158,6 +172,21 @@ public class Game {
         }
         e.consume();
     }
+
+
+//    private void printMap(Direction[][] searchMap){
+//        for (int i = 0; i < 23; i++) {
+//            for (int j = 0; j < 23; j++) {
+//                if (searchMap[i][j] == null) {
+//                    System.out.print("\t");
+//                } else {
+//                    System.out.print(searchMap[i][j].toString().charAt(0) + "\t");
+//                }
+//            }
+//            System.out.println();
+//        }
+//    }
+
 
     private void moveFromPen(){
         this.penCounter+=1;
@@ -212,49 +241,36 @@ public class Game {
         return false;
     }
 
-//    private void checkGhostCollision() {
-//        int row = this.pacman.getCoordinates()[1] / 30;
-//        int col = this.pacman.getCoordinates()[0] / 30;
-//        for (Ghost myGhost:this.ghosts){
-//            int ghostRow = myGhost.getCoordinates()[1]/30;
-//            int ghostCol = myGhost.getCoordinates()[0]/30;
-//            if (row == ghostRow && col == ghostCol) {
-//                if (myGhost.getCurrBehaviour() == ghostBehavior.FRIGHTENED) {
-//                    this.score += myGhost.getScore();
-//                    myGhost.executeCollision();
-//                } else {
-//                    this.timeline.stop();
-//                    System.out.println("I stopped my timeline  broo");
-//                    System.out.println(this.ghosts.length);
-//                    this.pacman.setLocation(pacman.getInitialLocation()[0], pacman.getInitialLocation()[1]);
-//                    this.lives -= 1;
-//                    for (Ghost ghost : this.ghosts) {
-//                    ghost.executeCollision();
-//                    ghost.setCurrBehaviour(ghostBehavior.CHASE);
-//                }
-//                this.sideBar.changeLivesLabel("Lives: " + this.lives);
-//                this.update();
-//            }
-//        }
-//        }
-    //System.out.println("ypoupoeugbi");
-//    //this.pacman.setLocation(pacman.getInitialLocation()[0], pacman.getInitialLocation()[1]);
-//                for (Ghost ghost : this.ghosts) {
-//
-//        ghost.setCurrBehaviour(ghostBehavior.CHASE);
-//    }
-//                this.update();
-////                    this.timeline.stop();
-//                    this.pacman.setLocation(pacman.getInitialLocation()[0], pacman.getInitialLocation()[1]);
-//
-//                    for (Ghost ghost : this.ghosts) {
-//                        ghost.executeCollision();
-//                        ghost.setCurrBehaviour(ghostBehavior.CHASE);
-//                    }
-//                    this.update();
-    //}'
 
+    private BoardCoordinate getChaseTarget(Ghost ghost) {
+        int row = pacman.getCoordinates()[1]/30;
+        int col = pacman.getCoordinates()[0]/30;
+        if (ghost.getMyColor() == Color.RED) {
+            return new BoardCoordinate(row, col, true); //here I return the pacman position (row, col)
+        } else if (ghost.getMyColor() == Color.HOTPINK) {
+            return new BoardCoordinate(row+1, col+3, true); //new BoardCoordinate(0, 22, true); here I return the pacman position (col +2), isTarget(true
+        } else if (ghost.getMyColor() == Color.SKYBLUE) {
+            return new BoardCoordinate(row, col+2, true); //new BoardCoordinate(22, 0, true); here I return the pacman position (row -4), isTarget(true
+        } else if (ghost.getMyColor() == Color.ORANGE){
+            return new BoardCoordinate(row-4, col, true); //new BoardCoordinate(22, 22, true); here I return the pacman position (row -3) (col +1), isTarget(true
+        }
+        else {
+            return null;
+        }
+    }
 
-
+    public BoardCoordinate getScatterTarget(Ghost ghost) {
+        if (ghost.getMyColor() == Color.RED) {
+            return new BoardCoordinate(0, 0, true);
+        } else if (ghost.getMyColor() == Color.HOTPINK) {
+            return new BoardCoordinate(0, 22, true);
+        } else if (ghost.getMyColor() == Color.SKYBLUE) {
+            return new BoardCoordinate(22, 0, true);
+        } else if (ghost.getMyColor() == Color.ORANGE) {
+            return new BoardCoordinate(22, 22, true);
+        } else {
+            return null;
+        }
+    }
 
 }

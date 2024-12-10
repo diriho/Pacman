@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 
 public class Board {
     private CS15SquareType[][] myMaze;
+
     private Pane pane;
 
     private Square[][] myBoard;
