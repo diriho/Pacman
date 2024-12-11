@@ -11,13 +11,17 @@ public class Pacman extends Dot{
 
     private Direction currentDir;
     private Board myBoard;
+    private int initialX;
+    private int initialY;
 
     //Pacman constructor
     public Pacman(Pane pane, Board board, int x, int y){
         super(pane, x, y);
         this.myBoard = board;
+        this.initialX = x;
+        this.initialY = y;
         this.currentDir = Direction.LEFT;
-        this.setSize(14);
+        this.setSize(Constants.PACMAN_RADIUS);
         this.setColor(Color.YELLOW);
     }
 
@@ -35,15 +39,15 @@ public class Pacman extends Dot{
                 }
                 break;
             case LEFT:
-                if (this.getCoordinates()[0] == 15) {
-                    this.setLocation(675, this.getCoordinates()[1]);
+                if (this.getCoordinates()[0] == Constants.OFFSET) {
+                    this.setLocation(Constants.SCENE_WIDTH - Constants.OFFSET, this.getCoordinates()[1]);
                 } else if (this.canMoveLeft(this.myBoard) == true){
                     this.moveLeft();
                 }
                 break;
             case RIGHT:
-                if (this.getCoordinates()[0] == 675) {
-                    this.setLocation(15, this.getCoordinates()[1]);
+                if (this.getCoordinates()[0] == Constants.SCENE_WIDTH - Constants.OFFSET) {
+                    this.setLocation(Constants.OFFSET, this.getCoordinates()[1]);
                 } else if (this.canMoveRight(this.myBoard) == true) {
                     this.moveRight();
                 }
@@ -53,21 +57,26 @@ public class Pacman extends Dot{
         }
     }
 
+    //this method returns the initial location of pacman
+    public int[] getInitialLocation(){
+        return new int[] {this.initialX, this.initialY};
+    }
+
     // moving up pacman
     private void moveUp(){
-        int newY = this.getCoordinates()[1] - 30;
+        int newY = this.getCoordinates()[1] - Constants.SQUARE_WIDTH;
         this.setLocation(this.getCoordinates()[0], newY);
     }
 
     // moving down pacman
     private void moveDown(){
-        int newY = this.getCoordinates()[1] + 30;
+        int newY = this.getCoordinates()[1] + Constants.SQUARE_WIDTH;
         this.setLocation(this.getCoordinates()[0], newY);
     }
 
     // moving left pacman
     private void moveLeft(){
-        int newX = this.getCoordinates()[0] - 30;
+        int newX = this.getCoordinates()[0] - Constants.SQUARE_WIDTH;
         if (newX >0){
             this.setLocation(newX, this.getCoordinates()[1]);}
 
@@ -75,8 +84,8 @@ public class Pacman extends Dot{
 
     // moving right pacman
     private void moveRight(){
-        int newX = this.getCoordinates()[0] + 30;
-        if (newX < 690){
+        int newX = this.getCoordinates()[0] + Constants.SQUARE_WIDTH;
+        if (newX < Constants.SCENE_WIDTH){
             this.setLocation(newX, this.getCoordinates()[1]);
         }
     }
@@ -90,8 +99,8 @@ public class Pacman extends Dot{
     //checking if pacman can move down, (checking if in that square there is not a wall
     private boolean canMoveDown(Board board) {
         boolean canMoveDown = true;
-        int row = this.getCoordinates()[1] / 30;
-        int col = this.getCoordinates()[0] / 30;
+        int row = this.getCoordinates()[1] / Constants.SQUARE_WIDTH;
+        int col = this.getCoordinates()[0] / Constants.SQUARE_WIDTH;
         if (board.isWall(row+1, col) ==  true){
             canMoveDown = false;
         }
@@ -101,8 +110,8 @@ public class Pacman extends Dot{
     //checking if pacman can move up , (checking if in that square there is not a wall
     private boolean canMoveUp(Board board) {
         boolean canMoveUp = true;
-        int row = this.getCoordinates()[1] / 30;
-        int col = this.getCoordinates()[0] / 30;
+        int row = this.getCoordinates()[1] / Constants.SQUARE_WIDTH;
+        int col = this.getCoordinates()[0] / Constants.SQUARE_WIDTH;
         if (board.isWall(row-1, col) ==  true){
             canMoveUp = false;
         }
@@ -112,8 +121,8 @@ public class Pacman extends Dot{
     //checking if pacman can move left, (checking if in that square there is not a wall
     private boolean canMoveLeft(Board board) {
         boolean canMoveLeft = true;
-        int row = this.getCoordinates()[1] / 30;
-        int col = this.getCoordinates()[0] / 30;
+        int row = this.getCoordinates()[1] / Constants.SQUARE_WIDTH;
+        int col = this.getCoordinates()[0] / Constants.SQUARE_WIDTH;
         if (board.isWall(row, col-1) ==  true){
             canMoveLeft = false;
         }
@@ -123,8 +132,8 @@ public class Pacman extends Dot{
     //checking if pacman can move right, (checking if in that square there is not a wall
     private boolean canMoveRight(Board board ) {
         boolean canMoveRight = true;
-        int row = this.getCoordinates()[1] / 30;
-        int col = this.getCoordinates()[0] / 30;
+        int row = this.getCoordinates()[1] / Constants.SQUARE_WIDTH;
+        int col = this.getCoordinates()[0] / Constants.SQUARE_WIDTH;
         if (board.isWall(row, col+1) ==  true){
             canMoveRight = false;
         }

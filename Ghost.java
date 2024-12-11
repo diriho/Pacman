@@ -35,8 +35,8 @@ public class Ghost implements Collidable{
         this.currBehaviour = ghostBehavior.CHASE;
         this.myBoard = board;
         this.initialLocation = location;
-        this.ghostScore = 200;
-        this.setGhost(color);
+        this.ghostScore = Constants.GHOST_SCORE;
+        this.setGhost();
     }
 
     //this method resets the counter
@@ -45,8 +45,8 @@ public class Ghost implements Collidable{
     }
 
     //this method deals with setting dimensions of a ghost and adding it to the pane
-    private void setGhost(Paint color){
-        this.ghost = new Rectangle(30, 30, color);
+    private void setGhost(){
+        this.ghost = new Rectangle(Constants.SQUARE_WIDTH, Constants.SQUARE_WIDTH, this.myColor);
         this.ghost.setStroke(Color.BLACK);
         this.setLocation(this.initialLocation[0], this.initialLocation[1]); //this 1D array will have the coordinates info for a ghost
         this.pane.getChildren().add(this.ghost) ;
@@ -70,9 +70,9 @@ public class Ghost implements Collidable{
 
     /*This method models the BFS algorithm*/
     public Direction  BFS(BoardCoordinate target){
-        int row = this.getCoordinates()[1]/30;
-        int col = this.getCoordinates()[0]/30;
-        Direction [][] map = new Direction[23][23];
+        int row = this.getCoordinates()[1]/Constants.SQUARE_WIDTH;
+        int col = this.getCoordinates()[0]/Constants.SQUARE_WIDTH;
+        Direction [][] map = new Direction[Constants.MAZE_SIZE][Constants.MAZE_SIZE];
         Direction returnDir = null;
         Queue<BoardCoordinate> myQueue = new LinkedList<>();
         double minimumDist = (int) Double.POSITIVE_INFINITY;
@@ -101,7 +101,6 @@ public class Ghost implements Collidable{
        } else {
            if(this.currentDir != Direction.DOWN && isFirst) {
                if (myBoard.isWall(row - 1, col) == false && visited[row - 1][col] == null) {
-
                    BoardCoordinate neighbor1 = new BoardCoordinate(row - 1, col, false);
                    Direction dir = Direction.UP;
                    neighbors.add(neighbor1);
@@ -151,17 +150,28 @@ public class Ghost implements Collidable{
        }
    }
 
-   //this method moves the Ghost depending on the direction that is given the BFS method
-    public void moveGhost(BoardCoordinate target) {
-        if (this.getCoordinates()[0] == 0) {
-            this.setLocation(630, this.getCoordinates()[1]);
+   /*returns initial position of the ghost*/
+   public int[] getInitialLocation(){
+        return this.initialLocation;
+   }
 
-        } if (this.getCoordinates()[0] == 660) {
-            this.setLocation(30, this.getCoordinates()[1]);
+   /*this method moves the Ghost depending on the direction that is given the BFS method (when the ghost is in chase
+   * and scatter mode and when the ghost is in frightened mode, it's direction is randomly generated*/
+    public void moveGhost(BoardCoordinate target) {
+        Direction myDir = null;
+        if (this.getCoordinates()[0] == 0) {
+            this.setLocation(Constants.WRAP, this.getCoordinates()[1]);
+
+        } if (this.getCoordinates()[0] == Constants.WRAP + Constants.SQUARE_WIDTH) {
+            this.setLocation(Constants.SQUARE_WIDTH, this.getCoordinates()[1]);
         } else {
-            Direction dir = this.BFS(target);
-            this.currentDir = dir;
-            switch (dir) {
+            if (target == null){
+                myDir = getRandomDirection();
+            } else {
+                myDir = this.BFS(target);
+            }
+            this.currentDir = myDir;
+            switch (myDir) {
                 case UP:
                     if (canMove()) {
                         this.moveUp();
@@ -180,7 +190,7 @@ public class Ghost implements Collidable{
 
                 case LEFT:
                     if (this.getCoordinates()[0] == 0) {
-                        this.setLocation(630, this.getCoordinates()[1]);
+                        this.setLocation(Constants.WRAP, this.getCoordinates()[1]);
                     } else {
                         if (canMove()) {
                             this.moveLeft();
@@ -202,7 +212,8 @@ public class Ghost implements Collidable{
     //this method brings back the ghost in the pen when the ghost collides with pacman  in frightened mode
     @Override
     public void executeCollision(){
-        this.setLocation(330, 300);
+        this.setLocation(Constants.RESET_X, Constants.RESET_Y);
+
     }
 
     //this method sets the color of the ghost
@@ -226,40 +237,76 @@ public class Ghost implements Collidable{
         return this.ghostScore;
     }
 
-    @Override
-    //this method returns the type of this, I am setting it to null, because I will not use it anywhere
-    public CS15SquareType getType() {
-        return null;
-    }
+
 
     //this method deals with moving right the ghost, graphically
     private void moveRight(){
-        int newX = (int) (this.ghost.getX()+30);
+        //removing this ghost from the previous square arrayList
+        int oldRow = (int) this.ghost.getY()/Constants.SQUARE_WIDTH;
+        int oldCol = (int) this.ghost.getX()/Constants.SQUARE_WIDTH;
+        this.myBoard.getBoard()[oldRow][oldCol].removeElement(this);
+
+        //Setting the newLocation and add the ghost to the arrayList of the new Square
+        int newX = (int) (this.ghost.getX()+Constants.SQUARE_WIDTH);
+        int newCol = newX/Constants.SQUARE_WIDTH;
         this.ghost.setX(newX);
+        this.myBoard.getBoard()[oldRow][newCol].addElement(this);
     }
 
     //this method deals with moving left the ghost, graphically
     public void moveLeft() {
-        int newX = (int) (this.ghost.getX() - 30);
+        //removing this ghost from the previous square arrayList
+        int oldRow = (int) this.ghost.getY()/Constants.SQUARE_WIDTH;
+        int oldCol = (int) this.ghost.getX()/Constants.SQUARE_WIDTH;
+        this.myBoard.getBoard()[oldRow][oldCol].removeElement(this);
+
+        //Setting the newLocation and add the ghost to the arrayList of the new Square
+        int newX = (int) (this.ghost.getX() - Constants.SQUARE_WIDTH);
+        int newCol = newX/Constants.SQUARE_WIDTH;
         this.ghost.setX(newX);
+        this.myBoard.getBoard()[oldRow][newCol].addElement(this);
     }
 
     //this method deals with moving down the ghost, graphically
     private void moveDown(){
-        int newY = (int) (this.ghost.getY() + 30);
+        //removing this ghost from the previous square arrayList
+        int oldRow = (int) this.ghost.getY()/Constants.SQUARE_WIDTH;
+        int oldCol = (int) this.ghost.getX()/Constants.SQUARE_WIDTH;
+        this.myBoard.getBoard()[oldRow][oldCol].removeElement(this);
+
+
+        //Setting the newLocation and add the ghost to the arrayList of the new Square
+        int newY = (int) (this.ghost.getY() + Constants.SQUARE_WIDTH);
+        int newRow = newY / Constants.SQUARE_WIDTH;
         this.ghost.setY(newY);
+        this.myBoard.getBoard()[newRow][oldCol].addElement(this);
     }
 
     //this method deals with moving up the ghosts, graphically
     private void moveUp(){
-        int newY = (int) (this.ghost.getY() - 30);
+        //removing this ghost from the previous square arrayList
+        int oldRow = (int) this.ghost.getY() / Constants.SQUARE_WIDTH;
+        int oldCol = (int) this.ghost.getX()/Constants.SQUARE_WIDTH;
+        this.myBoard.getBoard()[oldRow][oldCol].removeElement(this);
+
+        //Setting the newLocation and add the ghost to the arrayList of the new Square
+        int newY = (int) (this.ghost.getY() - Constants.SQUARE_WIDTH);
+        int newRow = newY/Constants.SQUARE_WIDTH;
         this.ghost.setY(newY);
+        this.myBoard.getBoard()[newRow][oldCol].addElement(this);
     }
 
 
+
+    @Override
+    //this method returns the type of this, I am setting it to null, because I will not use it anywhere
+    public CS15SquareType getType() {
+        return CS15SquareType.GHOST_START_LOCATION;
+    }
+
     private boolean canMove(){
-        int row = this.getCoordinates()[1]/30;
-        int col = this.getCoordinates()[0]/30;
+        int row = this.getCoordinates()[1]/Constants.SQUARE_WIDTH;
+        int col = this.getCoordinates()[0]/Constants.SQUARE_WIDTH;
         switch(this.currentDir){
             case LEFT:
                 if (this.myBoard.isWall(row, col-1)) {
@@ -288,7 +335,7 @@ public class Ghost implements Collidable{
     /*this is a helper method which returns the coordinates of the ghost  */
     @Override
     public int[] getCoordinates(){
-        int[] coordinate = new int [2];
+        int[] coordinate = new int [Constants.COORDS_SIZE];
         coordinate[0] = (int) this.ghost.getX();
         coordinate[1] = (int) this.ghost.getY();
         return coordinate;
@@ -299,58 +346,12 @@ public class Ghost implements Collidable{
         return myColor;
     }
 
-    /*this method deals with moving the ghost in frightened mode, which is basically a random movement, which is based
-    //on a random generation of the valid directions which the ghosts can take (this entails, the directions with
-    //no walls, and not the opposite*/
-    public void moveGhostInFrightened() {
-        if (this.getCoordinates()[0] == 0) {
-            this.setLocation(630, this.getCoordinates()[1]);
-
-        } if (this.getCoordinates()[0] == 660) {
-            this.setLocation(30, this.getCoordinates()[1]);
-        } else {
-            Direction randomDir = getValidDirection();
-            this.currentDir = randomDir;
-            switch (randomDir) {
-                case UP:
-                    if (canMove()) {
-                        this.moveUp();
-                    }
-                    break;
-                case DOWN:
-                    if (canMove()) {
-                        this.moveDown();
-                    }
-                    break;
-                case RIGHT:
-                    if (this.getCoordinates()[0] == 660) {
-                        this.setLocation(0, this.getCoordinates()[1]);
-                    } else {
-                        if (canMove()) {
-                            this.moveRight();
-                        }
-                        break;
-                    }
-                case LEFT:
-                    if (this.getCoordinates()[0] == 0) {
-                        this.setLocation(660, this.getCoordinates()[1]);
-                    } else {
-                        if (canMove()) {
-                            this.moveLeft();
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
     /*this is the method with deals with the random generation on Direction when the ghost is in frightened mode */
-   private Direction getValidDirection () {
+   private Direction getRandomDirection () {
        ArrayList<Direction> validDirections = new ArrayList<>();
-       int currRow = this.getCoordinates()[1] / 30;
-       int currCol = this.getCoordinates()[0] / 30;
+       int currRow = this.getCoordinates()[1] / Constants.SQUARE_WIDTH;
+       int currCol = this.getCoordinates()[0] / Constants.SQUARE_WIDTH;
        if (!this.myBoard.isWall(currRow - 1, currCol)) {
            validDirections.add(Direction.UP);
        }
@@ -370,5 +371,6 @@ public class Ghost implements Collidable{
        Random random = new Random();
        int index = random.nextInt(validDirections.size());
        return validDirections.get(index);
+
    }
 }

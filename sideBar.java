@@ -28,18 +28,19 @@ public class sideBar {
 
     //The method sets Up the side Bad initially when the game starts, with buttons, and all the
     private void setUpSideBar(){
+        //create my bottom pane labels and button
         this.btn = new Button("Quit");
         this.scoreLabel = new Label("Score: 0");
         this.modeLabel = new Label("Mode: Scatter");
 
         this.lifeLabel = new Label("Lives: 3");
-        this.lifeLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 20));
+        this.lifeLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, Constants.TEXT_SIZE));
         this.lifeLabel.setTextFill(Color.WHITE);
 
-        this.scoreLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 20));
+        this.scoreLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, Constants.TEXT_SIZE));
         this.scoreLabel.setTextFill(Color.WHITE);
 
-        this.modeLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 20));
+        this.modeLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, Constants.TEXT_SIZE));
         this.modeLabel.setTextFill(Color.WHITE);
 
         /*setting focus traversable to false for all the labels and button */
@@ -53,8 +54,8 @@ public class sideBar {
         this.btn.setOnAction((ActionEvent e) -> System.exit(0));
         this.barPane.getChildren().addAll(btn,  this.lifeLabel, this.scoreLabel, this.modeLabel);
         this.barPane.setAlignment(Pos.CENTER);
-        this.barPane.setSpacing(50);
-        this.barPane.setStyle("-fx-background-color:#900C3F");
+        this.barPane.setSpacing(Constants.SPACING);
+        this.barPane.setStyle(Constants.SIDEBAR_COLOR);
     }
 
     //this method will help when we want to update the Score, after pacman collides with a Collidable element

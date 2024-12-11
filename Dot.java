@@ -21,11 +21,11 @@ public class Dot implements Collidable{
         this.myPane = pane;
         this.x = x;
         this.y = y;
-        this.dot = new Circle(this.x, this.y, 5);
+        this.dot = new Circle(this.x, this.y, Constants.DOT_RADIUS);
         this.dot.setFill(Color.WHITE);
         this.myPane.getChildren().add(this.dot);
 
-        this.dotScore = 10;
+        this.dotScore = Constants.DOT_SCORE;
     }
 
     //this method sets the location of the dot to a new location
@@ -42,7 +42,7 @@ public class Dot implements Collidable{
     /*this is a helper method which returns the coordinates  */
     @Override
     public int[] getCoordinates(){
-        int[] coordinate = new int [2];
+        int[] coordinate = new int [Constants.COORDS_SIZE];
         coordinate[0] = (int) this.dot.getCenterX();
         coordinate[1] = (int) this.dot.getCenterY();
         return coordinate;

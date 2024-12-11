@@ -10,5 +10,6 @@ public interface Collidable {
     public void executeCollision();
     public int getScore();
     public CS15SquareType getType();
+    public void setLocation(int x, int y);
 
 }

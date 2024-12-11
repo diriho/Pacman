@@ -1,6 +1,5 @@
-/*This class models the functions and properties of the Enregizer
-* It extends the Dot class but also it implements the collidable interface*/
-
+/*This class models the functions and properties of the Energizer
+* It extends the Dot class, and it also it implements the collidable interface*/
 
 package pacman;
 
@@ -15,8 +14,8 @@ public class Energizer extends Dot implements Collidable{
     //Energizer's constructor
     public Energizer(Pane pane, int x, int y) {
         super(pane, x, y);
-        this.setSize(8);
-        this.energizerScore = 100;
+        this.setSize(Constants.ENERGIZER_RADIUS);
+        this.energizerScore = Constants.ENERGIZER_SCORE;
     }
 
     //this method returns the score of the energizer

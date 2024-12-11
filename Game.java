@@ -13,7 +13,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
@@ -35,13 +34,13 @@ public class Game {
     private sideBar sideBar;
     private Ghost[] ghosts;
     private int penCounter;
-    private Queue<Ghost> ghostInPen;
+    private Queue<Collidable> ghostInPen;
 
     /*Game constructor*/
     public Game(Pane pane, sideBar sideBar){
         this.myPane = pane;
         this.score = 0;
-        this.lives = 3;
+        this.lives = Constants.LIVES;
         this.ghostInPen = new LinkedList<>();
         this.penCounter = 0;
         this.sideBar = sideBar;
@@ -60,26 +59,28 @@ public class Game {
 
                 //create pacman and set its specific initial location
                 if (this.gameBoard.getBoard()[row][col].getType()== CS15SquareType.PACMAN_START_LOCATION) {
-                    this.pacman = new Pacman(this.myPane,this.gameBoard, col*30 + 15, row*30 + 15);
+                    this.pacman = new Pacman(this.myPane, this.gameBoard, col*Constants.SQUARE_WIDTH + Constants.OFFSET,
+                            row*Constants.SQUARE_WIDTH + Constants.OFFSET);
 
                 //create all the dots to their specific locations, and add them in the square's arrayList
                 } else if(this.gameBoard.getBoard()[row][col].getType() == CS15SquareType.DOT){
-                    Dot dot = new Dot(this.myPane, col*30 + 15, row*30 + 15);
-                    //dot.setLocation(col*30 + 15, row*30 + 15);
+                    Dot dot = new Dot(this.myPane, col*Constants.SQUARE_WIDTH + Constants.OFFSET,
+                            row*Constants.SQUARE_WIDTH + Constants.OFFSET);
                     this.gameBoard.getBoard()[row][col].addElement(dot);
 
                 //create all the energizers to their specific location, and add them in the square's arrayList
                 } else if (this.gameBoard.getBoard()[row][col].getType() == CS15SquareType.ENERGIZER){
-                    Energizer energizer = new Energizer(this.myPane, col*30 + 15, row*30 + 15);
-                    //energizer.setLocation(col*30 + 15, row*30 + 15);
+                    Energizer energizer = new Energizer(this.myPane, col*Constants.SQUARE_WIDTH + Constants.OFFSET,
+                            row*Constants.SQUARE_WIDTH + Constants.OFFSET);
                     this.gameBoard.getBoard()[row][col].addElement(energizer);
 
                 //create all the ghosts to their specific initial location, and add them in the square's arrayList
                 } else if (this.gameBoard.getBoard()[row][col].getType() == CS15SquareType.GHOST_START_LOCATION){
-                    this.ghosts = new Ghost[4];
-                    int x = col * 30;
-                    int y =  row * 30;
-                    int [][] ghostInitialLocation = new int[][] {{x, y}, {x + 30, y}, {x - 30, y}, {x, y - 60}};
+                    this.ghosts = new Ghost[Constants.GHOSTS_NUM];
+                    int x = col * Constants.SQUARE_WIDTH;
+                    int y =  row * Constants.SQUARE_WIDTH;
+                    int [][] ghostInitialLocation = new int[][] {{x, y}, {x + Constants.SQUARE_WIDTH, y},
+                            {x - Constants.SQUARE_WIDTH, y}, {x, y - 2*Constants.SQUARE_WIDTH}};
                     for (int i=0; i<ghostInitialLocation.length; i++ ){
                         this.ghosts[i] = new Ghost(this.myPane, Constants.GHOST_COLORS[i], this.gameBoard, ghostInitialLocation[i]);
                         if (i<3){
@@ -91,37 +92,79 @@ public class Game {
         }
     }
 
-    /*this method checks for collisions when pacman collide with elements that are in the arraylist of each square
-    * that pacman steps into*/
+    /**this method checks for collisions when pacman collide with elements that are in the arraylist of each square
+     * that pacman steps into - either it be: dots , energizers - and ghosts
+     * I made an if statement because the collision handling occur differently depending on the kind of mode
+     * does this collided ghost find itself to be at that particular moment **/
     private void checkCollision(){
-        int row = this.pacman.getCoordinates()[1]/30;
-        int col = this.pacman.getCoordinates()[0]/30;
+        /*getting the location of the pacman (row & col), which corresponds to the square in which pacman
+         *will find itself to be
+        * here I am checking the first ghost because all at once the ghosts will be in the same mode at the same time
+        * It would be the same thing if I had checked for any of other ghost*/
+        int row = this.pacman.getCoordinates()[1]/Constants.SQUARE_WIDTH;
+        int col = this.pacman.getCoordinates()[0]/Constants.SQUARE_WIDTH;
+        ghostBehavior currentMode = this.ghosts[0].getCurrBehaviour();
+
+        /*iterate through the whole arrayList of collidable elements in that square*/
         Square currentSquare = this.gameBoard.getBoard()[row][col];
         if (currentSquare.getSquareElements().size() != 0) {
             for (int i =0; i< currentSquare.getSquareElements().size(); i++) {
+                //if you find an energizer there, set all the ghost to FRIGHTENED mode and change their color to White
                 if (currentSquare.getSquareElements().get(i).getType() == CS15SquareType.ENERGIZER){
                     for (Ghost ghost:this.ghosts){
                         ghost.setCurrBehaviour(ghostBehavior.FRIGHTENED);
                         ghost.setCounter(0);
                         ghost.setColor(Color.WHITE);
                     }
-                }
-                this.score += currentSquare.getSquareElements().get(i).getScore();
-                currentSquare.getSquareElements().get(i).executeCollision();
-                currentSquare.removeElement(currentSquare.getSquareElements().get(i));
-                this.sideBar.changeScoreLabel("Score: "+this.score);
 
+                    //Increment the score and remove logically and graphically the collided thing - Energizer
+                    this.score += currentSquare.getSquareElements().get(i).getScore();
+                    currentSquare.getSquareElements().get(i).executeCollision();
+                    currentSquare.removeElement(currentSquare.getSquareElements().get(i));
+                    this.sideBar.changeScoreLabel("Score: "+this.score);
+
+                /*if you find a ghost there, set all the ghost to FRIGHTENED mode and change their color to White
+                * otherwise, bring back pacman and ghosts to their initial location,
+                * reset the pen counter to 0, and reduce lives by one*/
+                } else if (currentSquare.getSquareElements().get(i).getType() == CS15SquareType.GHOST_START_LOCATION){
+                    if (currentMode == ghostBehavior.FRIGHTENED){
+                        this.score += currentSquare.getSquareElements().get(i).getScore();
+                        this.ghostInPen.add(currentSquare.getSquareElements().get(i));
+                        currentSquare.getSquareElements().get(i).executeCollision();
+                        currentSquare.removeElement(currentSquare.getSquareElements().get(i));
+                        this.penCounter = 0;
+                        this.sideBar.changeScoreLabel("Score: "+this.score);
+                    } else {
+                        this.timeline.pause();
+                        int collidedRow = this.pacman.getCoordinates()[1]/Constants.SQUARE_WIDTH;
+                        int collidedCol = this.pacman.getCoordinates()[0]/Constants.SQUARE_WIDTH;
+                        this.gameBoard.getBoard()[collidedRow][collidedCol].getSquareElements().clear();
+                        this.resetPacmanAndGhost();
+                        this.lives -= 1;
+                        this.sideBar.changeLivesLabel("Lives: " + this.lives);
+                        this.penCounter = 0;
+                        this.setUpTimeLine();
+
+                    }
+                /*finally, if you find there a dot, Increment the score
+                and remove logically and graphically the collided thing - Dot*/
+                } else {
+                    this.score += currentSquare.getSquareElements().get(i).getScore();
+                    currentSquare.getSquareElements().get(i).executeCollision();
+                    currentSquare.removeElement(currentSquare.getSquareElements().get(i));
+                    this.sideBar.changeScoreLabel("Score: " + this.score);
+                }
             }
         }
     }
+
 
     /*this helper method dictates what happens when the game is over, the timeline stops and the label of Game over */
     private void gameOver(){
         this.timeline.stop();
         Label gameOver = new Label("Game Over");
-        gameOver.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 100));
+        gameOver.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, Constants.GAME_OVER_SIZE));
         gameOver.setTextFill(Color.GOLD);
-        gameOver.setEffect(new DropShadow());
         this.myPane.getChildren().add(gameOver);
 
     }
@@ -131,10 +174,9 @@ public class Game {
     * dots and energizers - move the ghost - and check for collisions for the second time
     * ht */
     private void updateGame(){
-        this.pacman.move();
         this.moveFromPen();
+        this.pacman.move();
         this.checkCollision();
-
         //this parts deals with moving the ghosts depending on their modes, with their specific targets
         for (Ghost ghost : this.ghosts) {
             ghost.updateState();
@@ -144,15 +186,16 @@ public class Game {
             } else if (ghost.getCurrBehaviour() == ghostBehavior.CHASE) {
                 ghost.moveGhost(getChaseTarget(ghost));
             } else if (ghost.getCurrBehaviour() == ghostBehavior.FRIGHTENED) {
-                ghost.moveGhostInFrightened();
+                ghost.moveGhost(null);
             }
         }
-        this.checkGhostCollision();
+        this.checkCollision();
+
     }
 
     //this method initialize the timeline and checks if the game is not overs, if not, you to the update_game
     private void setUpTimeLine(){
-        KeyFrame keyFrame = new KeyFrame(Duration.millis(300), (ActionEvent e) -> {
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(Constants.KEYFRAME_TIME), (ActionEvent e) -> {
             if (isGameOver()) {
                 gameOver();
             } else {
@@ -167,10 +210,11 @@ public class Game {
     }
 
 
-    /*this method handle the key pressing */
+    /*this method handle the key pressing, which basically is, everytime, I press a key arrow, I am changing
+    * the direction of pacman*/
     private void onKeyPressed(KeyEvent e) {
-        int currRow = this.pacman.getCoordinates()[1] / 30;
-        int currCol = this.pacman.getCoordinates()[0] / 30;
+        int currRow = this.pacman.getCoordinates()[1] / Constants.SQUARE_WIDTH;
+        int currCol = this.pacman.getCoordinates()[0] / Constants.SQUARE_WIDTH;
         KeyCode keyPressed = e.getCode();
         switch (keyPressed) {
             case UP:
@@ -206,78 +250,31 @@ public class Game {
     private void moveFromPen(){
         this.penCounter+=1;
         if (!this.ghostInPen.isEmpty() && this.penCounter ==10) {
-            this.ghostInPen.remove().setLocation(330, 240);
+            this.ghostInPen.remove().setLocation(Constants.JUMP_X, Constants.JUMP_Y);
             this.penCounter = 0;
         }
     }
 
-    /*this is a method that will check for collision of pacman and any of the ghosts.
-    * I made an if statement because the collision handling occur differently depending on which kind of modes
-    * does this collided ghost find itself to be at that particular moment */
-    private void checkGhostCollision() {
-        //here I am checking the first ghost because all at once the ghosts will be in the same mode at the same time\
-        //It would be the same thing if I had checked for any of other ghosts
-        //And I am getting the corresponding row and column of pacman which I will use when checking for collision
-        ghostBehavior currentMode = this.ghosts[0].getCurrBehaviour();
-        int row = this.pacman.getCoordinates()[1] / 30;
-        int col = this.pacman.getCoordinates()[0] / 30;
 
-        /*if the current_mode is FRIGHTENED, I iterate through the array of ghost, and the ghost which happen to be
-        * collided with pacman will return to its initial position (which is defined in the executeCollision method)
-        * and reinitialize the counter for ghosts coming out of the pen to zero */
-        if (currentMode == ghostBehavior.FRIGHTENED) {
-            for (Ghost myGhost : this.ghosts) {
-                int ghostRow = myGhost.getCoordinates()[1] / 30;
-                int ghostCol = myGhost.getCoordinates()[0] / 30;
-                if (row == ghostRow && col == ghostCol) {
-                    this.score += myGhost.getScore();
-                    myGhost.executeCollision();
-                    this.ghostInPen.add(myGhost);
-                    this.penCounter = 0;
-                }
-            }
-
-
-        /*otherwise, if the current mode is other than FRIGHTENED, you reset the gameBoard -to its initial condition -
-        * and decreases the pacman lives by one, and you start the timeline again*/
-        } else {
-            if (isCollided()) {
-                this.timeline.pause();
-                this.ghostInPen.clear();
-                this.gameBoard.resetBoard();
-                this.setGameBoard();
-                this.lives -= 1;
-                this.sideBar.changeLivesLabel("Lives: " + this.lives);
-                this.penCounter = 0;
-                this.timeline.play();
-                //this.setUpTimeLine();
-
-            }
-
-        }
-
-    }
-
-    /*this helper method checks if pacman collides with any of the ghosts, which I stored in a Arran of ghosts
-    * by returning true in case a collision occured, and false in the other case*/
-    private boolean isCollided() {
-        int row = this.pacman.getCoordinates()[1] / 30;
-        int col = this.pacman.getCoordinates()[0] / 30;
-        for (Ghost myGhost : this.ghosts) {
-            int ghostRow = myGhost.getCoordinates()[1] / 30;
-            int ghostCol = myGhost.getCoordinates()[0] / 30;
-            if (row == ghostRow && col == ghostCol) {
-                return true;
+    /*this helper method is a method that resets pacman and all the ghosts to their initial location
+    * this method  will be called when pacman collide with the ghost in the scatter or chase mode*/
+    private void resetPacmanAndGhost(){
+        this.ghostInPen.clear();
+        this.pacman.setLocation(this.pacman.getInitialLocation()[0], this.pacman.getInitialLocation()[1]);
+        for (int i=0; i<this.ghosts.length; i++){
+            this.ghosts[i].setLocation(this.ghosts[i].getInitialLocation()[0], this.ghosts[i].getInitialLocation()[1]);
+            if (i<3){
+                this.ghostInPen.add(this.ghosts[i]);
             }
         }
-        return false;
+
     }
 
     /*this method returns the Target of each individual ghost when they are in CHASE Mode. It identifies each
     individual ghost depending on its color*/
     private BoardCoordinate getChaseTarget(Ghost ghost) {
-        int row = pacman.getCoordinates()[1]/30;
-        int col = pacman.getCoordinates()[0]/30;
+        int row = pacman.getCoordinates()[1]/Constants.SQUARE_WIDTH;
+        int col = pacman.getCoordinates()[0]/Constants.SQUARE_WIDTH;
         if (ghost.getMyColor() == Color.RED) {
             return new BoardCoordinate(row, col, true); //here I return the pacman position (row, col)
         } else if (ghost.getMyColor() == Color.HOTPINK) {
@@ -292,19 +289,8 @@ public class Game {
         }
     }
 
-    /*this is a helper method which checks if the game is over, by returning a boolean in the pacman lives
-    * reaches 0
-    */
-    private boolean isGameOver(){
-        if (this.lives ==0){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     /*this method returns the Target of each individual ghost when they are in SCATTER Mode. It identifies each
-    individual ghost depending on its color. Those targets correspond to the corners of the pane */
+   individual ghost depending on its color. Those targets correspond to the corners of the pane */
     private BoardCoordinate getScatterTarget(Ghost ghost) {
         if (ghost.getMyColor() == Color.RED) {
             return new BoardCoordinate(0, 0, true);
@@ -316,6 +302,16 @@ public class Game {
             return new BoardCoordinate(22, 22, true);
         } else {
             return null;
+        }
+    }
+
+    /*this is a helper method which checks if the game is over, by returning a boolean in the pacman lives
+    * reaches 0 */
+    private boolean isGameOver(){
+        if (this.lives == Constants.O_VALUE){
+            return true;
+        } else {
+            return false;
         }
     }
 

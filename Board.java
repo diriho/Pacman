@@ -1,5 +1,5 @@
 /**this class initializes the Board and populate it with Black squares, initialize the maze map
- * and the add the walls **/
+ * and add the walls (with their blue color) **/
 
 package pacman;
 
@@ -24,11 +24,11 @@ public class Board {
      * other places**/
     private void setMyBoard(){
         //setting the smartSquares of the board
-        this.myBoard = new Square[23][23];
+        this.myBoard = new Square[Constants.MAZE_SIZE][Constants.MAZE_SIZE];
         for (int i = 0; i<this.myBoard.length; i++) {
             for (int j = 0; j < this.myBoard[0].length; j++) {
                 this.myBoard[j][i] = new Square(this.pane, this.myMaze[j][i]);
-                this.myBoard[j][i].setLocation(i*30, j*30);
+                this.myBoard[j][i].setLocation(i * Constants.SQUARE_WIDTH, j * Constants.SQUARE_WIDTH);
                 if (this.myBoard[j][i].getType() == CS15SquareType.WALL){
                     this.myBoard[j][i].setColor(Color.BLUE);
                 } else {
@@ -51,17 +51,6 @@ public class Board {
     //this method returns the Board
     public Square[][] getBoard(){
         return this.myBoard;
-    }
-
-    //this method resets the Boards to its initial location
-    public void resetBoard(){
-        for (int rw =0; rw<this.myBoard.length; rw++){
-            for (int col=0; col<this.myBoard[0].length; col++){
-                this.pane.getChildren().remove(this.myBoard[rw][col]);
-                this.myBoard[rw][col] = null;
-            }
-        }
-        this.setMyBoard();
     }
 
 }
