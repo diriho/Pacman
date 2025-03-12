@@ -34,5 +34,4 @@ Social Responsive Computing:
 - I choose the black background color for the board to be BLACK, because it makes it easier to visualize on the board
   and the color diversity of the pieces makes the game more appealing, and friendly to people who are color blind
 
-=======
-HAVE FUN 🤩🤩🤩🤩😉😉😉😉
+======= HAVE FUN 🤩🤩🤩🤩😉😉😉😉 ===============
