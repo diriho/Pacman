@@ -1,0 +1,37 @@
+README - PACMAN
+===============
+
+OVERVIEW:
+===========
+- This program is a version of the popular game PACMAN. As soon as the program begins, pacman across the maze by the
+  help of key input, and the Ghost are hunting pacman using BFS algorithm - which basically is looking for the shortest path to reach pacman
+  (the blue space represents the wall into which pacman nor ghosts can't go through).
+
+- The game has different Mode in which Ghosts are going to behave differently: FRIGHTENED, CHASE, SCATTER. The Ghosts are changing their modes on various amount of time
+
+- When pacman collide with the big dot (energizer), the dot disappear from the board and the score increase by 10;
+  when it collides with an energizer, the energizer disappear from the board and the score increase by 20, and all the
+  ghosts turn FRIGHTENED mode; when pacman collides with a ghost, (all the ghosts and pacman return to their initial
+  location and pacman life reduces by one when the collided ghost was in a mode other than FRIGHTENED;
+  otherwise, the collided ghost will return to the pen and the score will increase by 100.
+
+- The game also  have a quit button for quit, and labels on the bottom of the pane to display the update of the game
+  at every  moment
+
+- Once the lives reaches 0, the label of Game over come and the game stops.
+
+DESIGN CHOICES:
+================
+- I created a WRAPPER class of the Square & Ghost with encapsulates all the functionalities and capabilities of
+  a square & a Ghost
+- I also made use of Inheritance. I have my Dot class, which is the superclass for Energizer and Pacman, which prevent
+  me from defining similar methods so many times at once
+- I also used association between different classes
+- Lastly, I used interface of Collidable which is implemented by dots, Energizer, and Ghost
+
+Social Responsive Computing:
+=====
+- I choose the black background color for the board to be BLACK, because it makes it easier to visualize on the board
+  and the color diversity of the pieces makes the game more appealing, and friendly to people who are color blind
+
+======= HAVE FUN 🤩🤩🤩🤩😉😉😉😉 ===============

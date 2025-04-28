@@ -1,4 +1,4 @@
-package pacman;
+package Pacman;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

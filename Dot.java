@@ -1,9 +1,8 @@
 /**The Dot class serves as a superclass (parent class for Energizer and Pacman)*
  * It also implements the Collidable interface*/
 
-package pacman;
+package Pacman;
 
-import cs15.fnl.pacmanSupport.CS15SquareType;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -55,8 +54,8 @@ public class Dot implements Collidable{
     }
     //this method returns the type of this, I am setting it to null, because I will not use it anywhere
     @Override
-    public CS15SquareType getType() {
-        return null;
+    public SquareType getType() {
+        return SquareType.DOT;
     }
 
     //this method resets the radius of the circle to a new value

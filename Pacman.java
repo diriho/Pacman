@@ -2,7 +2,7 @@
  * It extends the Dot class, but also it implements the collidable interface**/
 
 
-package pacman;
+package Pacman;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;

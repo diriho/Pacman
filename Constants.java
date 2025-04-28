@@ -1,6 +1,6 @@
 /*this class initializes all the constants that I will need in this game*/
 
-package pacman;
+package Pacman;
 
 import javafx.scene.paint.Color;
 
@@ -31,7 +31,5 @@ public class Constants {
     public static final int RESET_Y = 300;
     public static final int KEYFRAME_TIME = 300;
     public static final String SIDEBAR_COLOR = "-fx-background-color:#900C3F";
-
-
 
 }

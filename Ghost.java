@@ -2,9 +2,8 @@
  * With all the necessary encapsulation
  * It also implements the collidable interface*/
 
-package pacman;
+package Pacman;
 
-import cs15.fnl.pacmanSupport.CS15SquareType;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -300,8 +299,8 @@ public class Ghost implements Collidable{
 
     @Override
     //this method returns the type of this, I am setting it to null, because I will not use it anywhere
-    public CS15SquareType getType() {
-        return CS15SquareType.GHOST_START_LOCATION;
+    public SquareType getType() {
+        return SquareType.GHOST_START_LOCATION;
     }
 
     private boolean canMove(){

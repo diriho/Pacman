@@ -5,9 +5,8 @@
  * the timeline, handles collisions, handle keypress, and finally always updating the game status in terms of
  * pacman lives remaining and the score of the game and checking for the game over,**/
 
-package pacman;
+package Pacman;
 
-import cs15.fnl.pacmanSupport.CS15SquareType;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -58,24 +57,24 @@ public class Game {
             for (int col = 0; col < this.gameBoard.getBoard()[0].length; col++) {
 
                 //create pacman and set its specific initial location
-                if (this.gameBoard.getBoard()[row][col].getType()== CS15SquareType.PACMAN_START_LOCATION) {
+                if (this.gameBoard.getBoard()[row][col].getType()== SquareType.PACMAN_START_LOCATION) {
                     this.pacman = new Pacman(this.myPane, this.gameBoard, col*Constants.SQUARE_WIDTH + Constants.OFFSET,
                             row*Constants.SQUARE_WIDTH + Constants.OFFSET);
 
                 //create all the dots to their specific locations, and add them in the square's arrayList
-                } else if(this.gameBoard.getBoard()[row][col].getType() == CS15SquareType.DOT){
+                } else if(this.gameBoard.getBoard()[row][col].getType() == SquareType.DOT){
                     Dot dot = new Dot(this.myPane, col*Constants.SQUARE_WIDTH + Constants.OFFSET,
                             row*Constants.SQUARE_WIDTH + Constants.OFFSET);
                     this.gameBoard.getBoard()[row][col].addElement(dot);
 
                 //create all the energizers to their specific location, and add them in the square's arrayList
-                } else if (this.gameBoard.getBoard()[row][col].getType() == CS15SquareType.ENERGIZER){
+                } else if (this.gameBoard.getBoard()[row][col].getType() == SquareType.ENERGIZER){
                     Energizer energizer = new Energizer(this.myPane, col*Constants.SQUARE_WIDTH + Constants.OFFSET,
                             row*Constants.SQUARE_WIDTH + Constants.OFFSET);
                     this.gameBoard.getBoard()[row][col].addElement(energizer);
 
                 //create all the ghosts to their specific initial location, and add them in the square's arrayList
-                } else if (this.gameBoard.getBoard()[row][col].getType() == CS15SquareType.GHOST_START_LOCATION){
+                } else if (this.gameBoard.getBoard()[row][col].getType() == SquareType.GHOST_START_LOCATION){
                     this.ghosts = new Ghost[Constants.GHOSTS_NUM];
                     int x = col * Constants.SQUARE_WIDTH;
                     int y =  row * Constants.SQUARE_WIDTH;
@@ -110,7 +109,7 @@ public class Game {
         if (currentSquare.getSquareElements().size() != 0) {
             for (int i =0; i< currentSquare.getSquareElements().size(); i++) {
                 //if you find an energizer there, set all the ghost to FRIGHTENED mode and change their color to White
-                if (currentSquare.getSquareElements().get(i).getType() == CS15SquareType.ENERGIZER){
+                if (currentSquare.getSquareElements().get(i).getType() == SquareType.ENERGIZER){
                     for (Ghost ghost:this.ghosts){
                         ghost.setCurrBehaviour(ghostBehavior.FRIGHTENED);
                         ghost.setCounter(0);
@@ -126,7 +125,7 @@ public class Game {
                 /*if you find a ghost there, set all the ghost to FRIGHTENED mode and change their color to White
                 * otherwise, bring back pacman and ghosts to their initial location,
                 * reset the pen counter to 0, and reduce lives by one*/
-                } else if (currentSquare.getSquareElements().get(i).getType() == CS15SquareType.GHOST_START_LOCATION){
+                } else if (currentSquare.getSquareElements().get(i).getType() == SquareType.GHOST_START_LOCATION){
                     if (currentMode == ghostBehavior.FRIGHTENED){
                         this.score += currentSquare.getSquareElements().get(i).getScore();
                         this.ghostInPen.add(currentSquare.getSquareElements().get(i));

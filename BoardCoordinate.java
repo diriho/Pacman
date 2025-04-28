@@ -1,4 +1,4 @@
-package pacman;
+package Pacman;
 
 /**
  * This class is an immutable representation of some coordinate within the

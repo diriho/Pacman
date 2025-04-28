@@ -1,7 +1,7 @@
 /**The paneOrganizer class is a high graphical class that models the graphical logic of the game
  * creating the panes and add the panes to the BorderPane which helps the layout**/
 
-package pacman;
+package Pacman;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;

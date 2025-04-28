@@ -2,7 +2,7 @@
 * will have at different stages of the game
 * */
 
-package pacman;
+package Pacman;
 
 public enum Direction {
     UP, DOWN, LEFT, RIGHT;

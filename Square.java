@@ -1,8 +1,7 @@
 /**The Square class models the capabilities of a square*/
 
-package pacman;
+package Pacman;
 
-import cs15.fnl.pacmanSupport.CS15SquareType;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -14,11 +13,11 @@ public class Square {
     private Rectangle sqr;
     private Pane myPane;
     private ArrayList<Collidable> squareElements;
-    private CS15SquareType myType;
+    private SquareType myType;
 
 
     //Square constructor
-    public Square(Pane pane, CS15SquareType type){
+    public Square(Pane pane, SquareType type){
         this.myPane = pane;
         this.myType = type;
         this.squareElements = new ArrayList<>();
@@ -34,7 +33,7 @@ public class Square {
     }
 
     //this method returns the type because I made it in a such a way that every square will know its type
-    public CS15SquareType getType(){
+    public SquareType getType(){
         return this.myType;
     }
 

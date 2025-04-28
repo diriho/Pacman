@@ -2,7 +2,7 @@
  * The class of the Sidebar is the class that is going to handle creation of labels the quit button
  * and do updates during different scenario of the game **/
 
-package pacman;
+package Pacman;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
